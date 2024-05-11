@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
         }
         else
         {
-            display.draw(key_ev);
+            display.draw();
         }
     }
 

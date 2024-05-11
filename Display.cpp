@@ -8,6 +8,8 @@ namespace npdib
         : m_display_data(pixel_location)
         , m_window(nullptr)
         , m_renderer(nullptr)
+        , m_cell_size(std::min((kScreenWidth * 0.9) / kScreenColumns, (kScreenHeight * 0.9) / kScreenRows))
+        , m_grid{ .x = (kScreenWidth - m_cell_size * kScreenColumns) / 2, .y = (kScreenHeight - m_cell_size * kScreenRows) / 2, .w = m_cell_size * kScreenColumns, .h = m_cell_size * kScreenRows }
     {
         // Create window
         m_window = SDL_CreateWindow("Basic C SDL project",
@@ -21,7 +23,7 @@ namespace npdib
                 "SDL_Error: %s\n", SDL_GetError());
         }
         else
-        {
+        {            
             // Create renderer
             m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED);
             if (!m_renderer)
@@ -41,6 +43,8 @@ namespace npdib
                 SDL_RenderPresent(m_renderer);
             }
         }
+
+        draw();
     }
 
     Display::~Display()
@@ -55,105 +59,53 @@ namespace npdib
         SDL_Quit();
     }
 
-    void Display::draw(uint8_t character)
+    void Display::draw()
     {
+        // clear screen
+
         SDL_SetRenderDrawColor(m_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(m_renderer);
 
-
-
-        // Declare rect of square
-        SDL_Rect box;
-
-        // Square dimensions: Half of the min(SCREEN_WIDTH, SCREEN_HEIGHT)
-        box.w = std::min(kScreenWidth, kScreenHeight) / 2;
-        box.h = std::min(kScreenWidth, kScreenHeight) / 2;
-
-        // Square position: In the middle of the screen
-        box.x = kScreenWidth / 2 - box.w / 2;
-        box.y = kScreenHeight / 2 - box.h / 2;
-
-        SDL_Rect highlight;
-
-        highlight.w = box.w / 4;
-        highlight.h = box.h / 4;
-
-        switch (character)
-        {
-            case 0x00:
-                highlight.x = box.x + highlight.w;
-                highlight.y = box.y + 3 * highlight.h;
-                break;
-            case 0x01:
-                highlight.x = box.x;
-                highlight.y = box.y;
-                break;
-            case 0x02:
-                highlight.x = box.x + highlight.w;
-                highlight.y = box.y;
-                break;
-            case 0x03:
-                highlight.x = box.x + 2 * highlight.w;
-                highlight.y = box.y;
-                break;
-            case 0x04:
-                highlight.x = box.x;
-                highlight.y = box.y + highlight.h;
-                break;
-            case 0x05:
-                highlight.x = box.x + highlight.w;
-                highlight.y = box.y + highlight.h;
-                break;
-            case 0x06:
-                highlight.x = box.x + 2 * highlight.w;
-                highlight.y = box.y + highlight.h;
-                break;
-            case 0x07:
-                highlight.x = box.x;
-                highlight.y = box.y + 2 * highlight.h;
-                break;
-            case 0x08:
-                highlight.x = box.x + highlight.w;
-                highlight.y = box.y + 2 * highlight.h;
-                break;
-            case 0x09:
-                highlight.x = box.x + 2 * highlight.w;
-                highlight.y = box.y + 2 * highlight.h;
-                break;
-            case 0x0A:
-                highlight.x = box.x;
-                highlight.y = box.y + 3 * highlight.h;
-                break;
-            case 0x0B:
-                highlight.x = box.x + 2 * highlight.w;
-                highlight.y = box.y + 3 * highlight.h;
-                break;
-            case 0x0C:
-                highlight.x = box.x + 3 * highlight.w;
-                highlight.y = box.y;
-                break;
-            case 0x0D:
-                highlight.x = box.x + 3 * highlight.w;
-                highlight.y = box.y + highlight.h;
-                break;
-            case 0x0E:
-                highlight.x = box.x + 3 * highlight.w;
-                highlight.y = box.y + 2 * highlight.h;
-                break;
-            case 0x0F:
-                highlight.x = box.x + 3 * highlight.w;
-                highlight.y = box.y + 3 * highlight.h;
-                break;
-            default:
-                break;
-        }
+        draw_grid();
 
         SDL_SetRenderDrawColor(m_renderer, 0x00, 0x00, 0x00, 0xFF);
-        SDL_RenderDrawRect(m_renderer, &box);
 
-        SDL_SetRenderDrawColor(m_renderer, 0xFF, 0x00, 0x00, 0xFF);
-        SDL_RenderFillRect(m_renderer, &highlight);
+        for (uint16_t byte_counter = 0; byte_counter < 256; ++byte_counter)
+        {
+            for (uint8_t bit_counter = 0; bit_counter < 8; ++bit_counter)
+            {
+                if (m_display_data[byte_counter] & (1 << (7 - bit_counter)))
+                {
+                    SDL_Rect pixel = {
+                        .x = m_grid.x + m_cell_size * (((byte_counter % 8) << 3) + bit_counter),
+                        .y = m_grid.y + m_cell_size * (byte_counter / 8),
+                        .w = m_cell_size,
+                        .h = m_cell_size
+                    };
+
+                    SDL_RenderFillRect(m_renderer, &pixel);
+                }
+            }
+        }
 
         SDL_RenderPresent(m_renderer);
     }
+
+    void Display::draw_grid()
+    {
+        SDL_SetRenderDrawColor(m_renderer, 0x00, 0x00, 0x00, 0xFF);
+
+        SDL_RenderDrawRect(m_renderer, &m_grid);
+
+        for (uint8_t x = 1; x < kScreenColumns; ++x)
+        {
+            SDL_RenderDrawLine(m_renderer, m_grid.x + x * (m_grid.w / kScreenColumns), m_grid.y, m_grid.x + x * (m_grid.w / kScreenColumns), m_grid.y + m_grid.h - 1);
+        }
+
+        for (uint8_t y = 1; y < kScreenRows; ++y)
+        {
+            SDL_RenderDrawLine(m_renderer, m_grid.x, m_grid.y + y * (m_grid.h / kScreenRows), m_grid.x + m_grid.w - 1, m_grid.y + y * (m_grid.h / kScreenRows));
+        }
+    }
+
 }
