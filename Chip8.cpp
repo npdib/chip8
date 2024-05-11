@@ -18,6 +18,7 @@ namespace npdib
 		, k_program_data(m_ram + 0x0200)
 		, m_stack_pointer(k_call_stack)
 		, m_program_counter(k_program_data)
+		, key_held(false)
 	{
 		std::memset(m_ram, 0, sizeof(m_ram));
 		std::memcpy(m_ram + 0x0050, font, sizeof(font));
@@ -397,7 +398,7 @@ namespace npdib
 				if (pixel_on && flip)
 				{
 					k_v_registers[0x0F] = 1;
-					k_display_data[(y * 8) + (x / 8)] &= ~(1 << (7 - bit_counter));
+					k_display_data[(y * 8) + (x / 8)] &= ~(1 << (7 - (x % 8)));
 				}
 
 				if (!pixel_on && flip)
@@ -511,7 +512,14 @@ namespace npdib
 		uint16_t keys = (*k_key_register << 8) | *(k_key_register + 1);
 		if (!keys)
 		{
-			m_program_counter -= 2;
+			if (key_held)
+			{
+				key_held = false;
+			}
+			else
+			{
+				m_program_counter -= 2;
+			}
 		}
 		else
 		{
@@ -524,12 +532,17 @@ namespace npdib
 			}
 
 			k_v_registers[retrieve_nibble(Nibble::Second)] = key;
+			key_held = true;
+
+			m_program_counter -= 2;
 		}
+
+		m_cycles += kClockSpeed / 60;
 	}
 
 	void Chip8::font_character()
 	{
-		uint16_t address = k_fonts - m_ram + retrieve_nibble(Nibble::Second);
+		uint16_t address = k_fonts - m_ram + (retrieve_nibble(Nibble::Second) * 5);
 		*k_i_register = address >> 8;
 		*(k_i_register + 1) = address & 0xFF;
 		m_cycles += 91;

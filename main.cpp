@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <SDL.h>
 #include <iostream>
+#include <Windows.h>
 
 #include "Display.h"
 #include "Keypad.h"
@@ -28,10 +29,8 @@ int main(int argc, char* argv[])
     npdib::Display display(chip8.get_display_data());
     npdib::Keypad keypad(chip8.get_key_register());
 
-    chip8.load_program("roms/bc_test.ch8");
+    chip8.load_program("roms/delay_test.ch8");
     chip8.run();
-
-    std::cout << "starting... \n";
 
     uint64_t next_tick = 0;
     bool quit = false;

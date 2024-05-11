@@ -121,6 +121,7 @@ namespace npdib
 		void set_sound();
 		void add_to_index();
 		void get_key();
+		bool key_held;
 		void font_character();
 		void bcd_conversion();
 		void store_memory();
