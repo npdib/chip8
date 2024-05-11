@@ -29,9 +29,9 @@ int main(int argc, char* argv[])
 
     chip8.load_program("roms/IBM Logo.ch8");
 
-    uint64_t next_tick = 0;
 
     chip8.run();
+    uint64_t next_tick = 0;
 
     while (true)
     {
@@ -44,17 +44,9 @@ int main(int argc, char* argv[])
 
         uint8_t key_ev = keypad.poll();
 
-        if (key_ev == 255)
-        {
-            continue;
-        }
-        else if (key_ev == 254)
+        if (key_ev == 254)
         {
             break;
-        }
-        else
-        {
-            display.display();
         }
     }
 

@@ -63,7 +63,7 @@ namespace npdib
     {
         // clear screen
 
-        SDL_SetRenderDrawColor(m_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+        SDL_SetRenderDrawColor(m_renderer, 0x00, 0x00, 0x00, 0xFF);
         SDL_RenderClear(m_renderer);
 
         draw_grid();
@@ -93,6 +93,9 @@ namespace npdib
 
     void Display::draw_grid()
     {
+        SDL_SetRenderDrawColor(m_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+        SDL_RenderFillRect(m_renderer, &m_grid);
+
         SDL_SetRenderDrawColor(m_renderer, 0x00, 0x00, 0x00, 0xFF);
 
         SDL_RenderDrawRect(m_renderer, &m_grid);
