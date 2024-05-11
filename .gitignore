@@ -1,3 +1,5 @@
 .vs/
 *.user
 x64/
+chip8/Debug/
+Debug/
