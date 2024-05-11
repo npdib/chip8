@@ -69,7 +69,7 @@ namespace npdib
 		}
 	}
 
-	uint8_t Chip8::pop(uint8_t data)
+	uint8_t Chip8::pop()
 	{
 		if (m_stack_pointer - m_ram > 0x0EC0)
 		{
@@ -94,15 +94,23 @@ namespace npdib
 		switch (retrieve_nibble(Nibble::OpCode))
 		{
 			case 0x00:
-				clear_screen();
+				machine_language_routine();
 				break;
 			case 0x01:
 				jump();
 				break;
 			case 0x02:
+				subroutine();
+				break;
 			case 0x03:
+				skip_if_equal();
+				break;
 			case 0x04:
+				skip_if_not_equal();
+				break;
 			case 0x05:
+				skip_if_equal_registers();
+				break;
 			case 0x06:
 				set_register();
 				break;
@@ -111,6 +119,8 @@ namespace npdib
 				break;
 			case 0x08:
 			case 0x09:
+				skip_if_not_equal_registers();
+				break;
 			case 0x0A:
 				set_index_register();
 				break;
@@ -150,10 +160,24 @@ namespace npdib
 		return k_display_data + (y * 8) + (x / 8); // 8 bytes per row, 
 	}
 
-	void Chip8::clear_screen()
+	void Chip8::machine_language_routine()
 	{
-		std::memset(m_ram + 0x0F00, 0, 256);
-		m_cycles += 109;
+		switch (m_current_op & 0x0FFF)
+		{
+			case 0x0E0:
+				std::memset(m_ram + 0x0F00, 0, 256);
+				m_cycles += 109;
+				break;
+			case 0x0EE:
+				uint16_t pc = 0;
+				pc |= pop();
+				pc |= (pop() << 8);
+				m_program_counter = m_ram + pc;
+				m_cycles += 105;
+				break;
+			default:
+				break;
+		}
 	}
 
 
@@ -161,6 +185,42 @@ namespace npdib
 	{
 		m_program_counter = m_ram + (m_current_op & 0x0FFF);
 		m_cycles += 105;
+	}
+
+	void Chip8::subroutine()
+	{
+		const uint16_t pc = m_program_counter - m_ram;
+		push(pc >> 8);
+		push(pc & 0xFF);
+		m_program_counter = m_ram + (m_current_op & 0x0FFF);
+		m_cycles += 105;
+	}
+
+	void Chip8::skip_if_equal()
+	{
+		if (*(k_v_registers + retrieve_nibble(Nibble::Second)) == ((retrieve_nibble(Nibble::Third) << 4) | retrieve_nibble(Nibble::Fourth)))
+		{
+			m_program_counter += 2;
+		}
+		m_cycles += 55;
+	}
+
+	void Chip8::skip_if_not_equal()
+	{
+		if (*(k_v_registers + retrieve_nibble(Nibble::Second)) != ((retrieve_nibble(Nibble::Third) << 4) | retrieve_nibble(Nibble::Fourth)))
+		{
+			m_program_counter += 2;
+		}
+		m_cycles += 55;
+	}
+
+	void Chip8::skip_if_equal_registers()
+	{
+		if (*(k_v_registers + retrieve_nibble(Nibble::Second)) == *(k_v_registers + retrieve_nibble(Nibble::Third)))
+		{
+			m_program_counter += 2;
+		}
+		m_cycles += 73;
 	}
 
 	void Chip8::set_register()
@@ -175,11 +235,28 @@ namespace npdib
 		m_cycles += 45;
 	}
 
+	void Chip8::skip_if_not_equal_registers()
+	{
+		if (*(k_v_registers + retrieve_nibble(Nibble::Second)) != *(k_v_registers + retrieve_nibble(Nibble::Third)))
+		{
+			m_program_counter += 2;
+		}
+		m_cycles += 73;
+	}
+
 	void Chip8::set_index_register()
 	{
 		*k_i_register = retrieve_nibble(Nibble::Second);
 		*(k_i_register + 1) = (retrieve_nibble(Nibble::Third) << 4) | retrieve_nibble(Nibble::Fourth);
 		m_cycles += 55;
+	}
+
+	void Chip8::random()
+	{
+		uint8_t random = std::rand() & 0xFF;
+		random &= ((retrieve_nibble(Nibble::Third) << 4) | retrieve_nibble(Nibble::Fourth));
+		*(k_v_registers + retrieve_nibble(Nibble::Second)) = random;
+		m_cycles += 164;
 	}
 
 	void Chip8::display()

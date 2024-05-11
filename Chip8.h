@@ -72,7 +72,7 @@ namespace npdib
 		uint8_t* m_program_counter;
 		
 		void push(uint8_t data);
-		uint8_t pop(uint8_t data);
+		uint8_t pop();
 
 		uint16_t m_current_op;
 
@@ -84,11 +84,17 @@ namespace npdib
 
 		// operations
 
-		void clear_screen();
+		void machine_language_routine();
 		void jump();
+		void subroutine();
+		void skip_if_equal();
+		void skip_if_not_equal();
+		void skip_if_equal_registers();
 		void set_register();
 		void add_value_to_register();
+		void skip_if_not_equal_registers();
 		void set_index_register();
+		void random();
 		void display();
 
 	};
