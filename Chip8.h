@@ -61,6 +61,7 @@ namespace npdib
 		0x0F00 - 0x0FFF:	DISPLAY DATA
 		*/
 		uint8_t m_ram[4096];
+		uint8_t* const k_fonts;
 		uint8_t* const k_v_registers;
 		uint8_t* const k_i_register; // 2 bytes
 		uint8_t* const k_delay_register; // 1 byte
@@ -112,6 +113,18 @@ namespace npdib
 		void random();
 		void display();
 		void skip_if_key();
+
+		void misc();
+
+		void set_register_to_delay();
+		void set_delay_from_register();
+		void set_sound();
+		void add_to_index();
+		void get_key();
+		void font_character();
+		void bcd_conversion();
+		void store_memory();
+		void load_memory();
 	};
 
 }

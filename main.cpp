@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
     npdib::Display display(chip8.get_display_data());
     npdib::Keypad keypad;
 
-    chip8.load_program("roms/IBM Logo.ch8");
+    chip8.load_program("roms/test_opcode.ch8");
 
 
     chip8.run();

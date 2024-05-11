@@ -6,6 +6,7 @@ namespace npdib
 
 	Chip8::Chip8()
 		: m_halted(true)
+		, k_fonts(m_ram + 0x0050)
 		, k_v_registers(m_ram + 0x0EA0)
 		, k_i_register(m_ram + 0x0EB0)
 		, k_delay_register(m_ram + 0x0EB2)
@@ -135,7 +136,9 @@ namespace npdib
 				display();
 				break;
 			case 0x0E:
+				skip_if_key();
 			case 0x0F:
+				misc();
 			default:
 				break;
 		}
@@ -265,7 +268,7 @@ namespace npdib
 				sub_left();
 				break;
 			case 0x06:
-				shift_left(); // contentious
+				shift_right(); // contentious
 				break;
 			case 0x07:
 				sub_right();
@@ -427,5 +430,140 @@ namespace npdib
 		}
 
 		m_cycles += 73;
+	}
+	void Chip8::misc()
+	{
+		switch (m_current_op & 0xFF)
+		{
+			case 0x07:
+				set_register_to_delay();
+				break;
+			case 0x15:
+				set_register_to_delay();
+				break;
+			case 0x18:
+				set_sound();
+				break;
+			case 0x1E:
+				add_to_index();
+				break;
+			case 0x0A:
+				get_key();
+				break;
+			case 0x29:
+				font_character();
+				break;
+			case 0x33:
+				bcd_conversion();
+				break;
+			case 0x55:
+				store_memory();
+				break;
+			case 0x65:
+				load_memory();
+				break;
+			default:
+				break;
+		}
+	}
+
+	void Chip8::set_register_to_delay()
+	{
+		k_v_registers[retrieve_nibble(Nibble::Second)] = *k_delay_register;
+		m_cycles += 45;
+	}
+
+	void Chip8::set_delay_from_register()
+	{
+		*k_delay_register = k_v_registers[retrieve_nibble(Nibble::Second)];
+		m_cycles += 45;
+	}
+
+	void Chip8::set_sound()
+	{
+		*k_sound_register = k_v_registers[retrieve_nibble(Nibble::Second)];
+		m_cycles += 45;
+	}
+
+	void Chip8::add_to_index()
+	{
+		uint16_t index = (*k_i_register << 8) | *(k_i_register + 1);
+		index += k_v_registers[retrieve_nibble(Nibble::Second)];
+		*k_i_register = index >> 8;
+		*(k_i_register + 1) = index & 0xFF;
+
+		k_v_registers[0x0F] = (index & 0xF000) ? 1 : 0;
+		m_cycles += 86;
+	}
+
+	void Chip8::get_key()
+	{
+		uint16_t keys = (*k_key_register << 8) | *(k_key_register + 1);
+		if (!keys)
+		{
+			m_program_counter -= 2;
+		}
+		else
+		{
+			uint8_t key = 0;
+
+			while (keys != 1)
+			{
+				keys >>= 1;
+				++key;
+			}
+
+			k_v_registers[retrieve_nibble(Nibble::Second)] = key;
+		}
+	}
+
+	void Chip8::font_character()
+	{
+		uint16_t address = k_fonts - m_ram + retrieve_nibble(Nibble::Second);
+		*k_i_register = address >> 8;
+		*(k_i_register + 1) = address & 0xFF;
+		m_cycles += 91;
+	}
+
+	void Chip8::bcd_conversion()
+	{
+		uint16_t address = (*k_i_register << 8) | *(k_i_register + 1);
+		uint8_t value = k_v_registers[retrieve_nibble(Nibble::Second)];
+		uint8_t digit1 = value / 100;
+		uint8_t digit2 = (value / 10) % 10;
+		uint8_t digit3 = value % 10;
+
+		*(m_ram + address) = digit1;
+		*(m_ram + address + 1) = digit2;
+		*(m_ram + address + 2) = digit3;
+
+		m_cycles += 364;
+		m_cycles += 73 * (digit1 + digit2 + digit3);
+	}
+
+	void Chip8::store_memory()
+	{
+		uint8_t bytes = retrieve_nibble(Nibble::Second) + 1;
+		uint16_t address = (*k_i_register << 8) | *(k_i_register + 1);
+
+		for (uint8_t offset = 0; offset < bytes; ++offset)
+		{
+			*(m_ram + address + offset) = k_v_registers[offset];
+			m_cycles += 64;
+		}
+		m_cycles += 64;
+	}
+
+	void Chip8::load_memory()
+	{
+		uint8_t bytes = retrieve_nibble(Nibble::Second) + 1;
+		uint16_t address = (*k_i_register << 8) | *(k_i_register + 1);
+
+		for (uint8_t offset = 0; offset < bytes; ++offset)
+		{
+			k_v_registers[offset] = *(m_ram + address + offset);
+			m_cycles += 64;
+		}
+		m_cycles += 64;
 	}
 }
