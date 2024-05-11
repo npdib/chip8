@@ -20,6 +20,7 @@ int main(int argc, char* argv[])
         return 0;
     }
 
+    // create objects
     npdib::Chip8 chip8;
     npdib::Display display(chip8.get_display_data());
     npdib::Keypad keypad;
