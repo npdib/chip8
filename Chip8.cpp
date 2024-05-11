@@ -169,12 +169,14 @@ namespace npdib
 				m_cycles += 109;
 				break;
 			case 0x0EE:
+			{
 				uint16_t pc = 0;
 				pc |= pop();
 				pc |= (pop() << 8);
 				m_program_counter = m_ram + pc;
 				m_cycles += 105;
 				break;
+			}
 			default:
 				break;
 		}
