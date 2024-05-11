@@ -3,18 +3,25 @@
 #include <cstdint>
 #include <SDL.h>
 
-class Display
+namespace npdib
 {
-public:
-	Display(uint8_t* pixel_location);
-	~Display();
+	class Display
+	{
+	public:
+		Display(uint8_t* pixel_location);
+		~Display();
 
-	void draw();
+		void draw(uint8_t character);
 
-private:
-	SDL_Window* m_window;
-	SDL_Renderer* m_renderer;
+	private:
+		SDL_Window* m_window;
+		SDL_Renderer* m_renderer;
 
-	uint8_t* const m_display_data; // this is where the pixel data is
-};
+		// Define screen dimensions
+		static constexpr uint16_t kScreenWidth = 800;
+		static constexpr uint16_t kScreenHeight = 600;
 
+		uint8_t* const m_display_data; // this is where the pixel data is
+	};
+
+}

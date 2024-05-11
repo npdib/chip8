@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdbool.h>
-
 #include <SDL.h>
+
 #include "Display.h"
+#include "Keypad.h"
 #include "Chip8.h"
 
 int main(int argc, char* argv[])
@@ -19,8 +20,27 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    Chip8 chip8;
-    Display display(chip8.get_display_data());
+    npdib::Chip8 chip8;
+    npdib::Display display(chip8.get_display_data());
+    npdib::Keypad keypad;
+
+    while (true)
+    {
+        uint8_t key_ev = keypad.poll();
+
+        if (key_ev == 255)
+        {
+            continue;
+        }
+        else if (key_ev == 254)
+        {
+            break;
+        }
+        else
+        {
+            display.draw(key_ev);
+        }
+    }
 
     return 0;
 }
