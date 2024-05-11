@@ -11,7 +11,7 @@ namespace npdib
 		Display(uint8_t* pixel_location);
 		~Display();
 
-		void draw();
+		void display();
 
 	private:
 		SDL_Window* m_window;

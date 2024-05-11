@@ -44,7 +44,7 @@ namespace npdib
             }
         }
 
-        draw();
+        display();
     }
 
     Display::~Display()
@@ -59,7 +59,7 @@ namespace npdib
         SDL_Quit();
     }
 
-    void Display::draw()
+    void Display::display()
     {
         // clear screen
 
