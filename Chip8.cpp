@@ -10,6 +10,7 @@ namespace npdib
 		, k_i_register(m_ram + 0x0EB0)
 		, k_delay_register(m_ram + 0x0EB2)
 		, k_sound_register(m_ram + 0x0EB3)
+		, k_key_register(m_ram + 0x0EB4)
 		, k_call_stack(m_ram + 0x0EC0)
 		, k_display_data(m_ram + 0x0F00)
 		, k_program_data(m_ram + 0x0200)
@@ -118,6 +119,8 @@ namespace npdib
 				add_value_to_register();
 				break;
 			case 0x08:
+				arithmetic_operations();
+				break;
 			case 0x09:
 				skip_if_not_equal_registers();
 				break;
@@ -126,6 +129,8 @@ namespace npdib
 				break;
 			case 0x0B:
 			case 0x0C:
+				random();
+				break;
 			case 0x0D:
 				display();
 				break;
@@ -237,6 +242,96 @@ namespace npdib
 		m_cycles += 45;
 	}
 
+	void Chip8::arithmetic_operations()
+	{
+		switch (m_current_op & 0x0F)
+		{
+			case 0x00:
+				set();
+				break;
+			case 0x01:
+				bin_or();
+				break;
+			case 0x02:
+				bin_and();
+				break;
+			case 0x03:
+				logic_xor();
+				break;
+			case 0x04:
+				add();
+				break;
+			case 0x05:
+				sub_left();
+				break;
+			case 0x06:
+				shift_left(); // contentious
+				break;
+			case 0x07:
+				sub_right();
+				break;
+			case 0x0E:
+				shift_left(); // contentious
+				break;
+			default:
+				break;
+		}
+		m_cycles += 200;
+	}
+
+	void Chip8::set()
+	{
+		*(k_v_registers + retrieve_nibble(Nibble::Second)) = *(k_v_registers + retrieve_nibble(Nibble::Third));
+	}
+
+	void Chip8::bin_or()
+	{
+		*(k_v_registers + retrieve_nibble(Nibble::Second)) |= *(k_v_registers + retrieve_nibble(Nibble::Third));
+	}
+
+	void Chip8::bin_and()
+	{
+		*(k_v_registers + retrieve_nibble(Nibble::Second)) &= *(k_v_registers + retrieve_nibble(Nibble::Third));
+	}
+
+	void Chip8::logic_xor()
+	{
+		*(k_v_registers + retrieve_nibble(Nibble::Second)) ^= *(k_v_registers + retrieve_nibble(Nibble::Third));
+	}
+
+	void Chip8::add()
+	{
+		uint16_t sum = *(k_v_registers + retrieve_nibble(Nibble::Second)) + *(k_v_registers + retrieve_nibble(Nibble::Third));
+		*(k_v_registers + retrieve_nibble(Nibble::Second)) = sum & 0xFF;
+		k_v_registers[0x0F] = (sum & 0xFF00) ? 1 : 0;
+	}
+
+	void Chip8::sub_left()
+	{
+		k_v_registers[0x0F] = (k_v_registers[retrieve_nibble(Nibble::Second)] >= k_v_registers[retrieve_nibble(Nibble::Third)]) ? 1 : 0;
+
+		k_v_registers[retrieve_nibble(Nibble::Second)] -= k_v_registers[retrieve_nibble(Nibble::Third)];
+	}
+
+	void Chip8::sub_right()
+	{
+		k_v_registers[0x0F] = (k_v_registers[retrieve_nibble(Nibble::Third)] >= k_v_registers[retrieve_nibble(Nibble::Second)]) ? 1 : 0;
+
+		k_v_registers[retrieve_nibble(Nibble::Second)] = k_v_registers[retrieve_nibble(Nibble::Third)] - k_v_registers[retrieve_nibble(Nibble::Second)];
+	}
+
+	void Chip8::shift_left()
+	{
+		k_v_registers[0x0F] = (k_v_registers[retrieve_nibble(Nibble::Second)] & 0x70) >> 7;
+		k_v_registers[retrieve_nibble(Nibble::Second)] <<= 1;
+	}
+
+	void Chip8::shift_right()
+	{
+		k_v_registers[0x0F] = k_v_registers[retrieve_nibble(Nibble::Second)] & 0x01;
+		k_v_registers[retrieve_nibble(Nibble::Second)] >>= 1;
+	}
+
 	void Chip8::skip_if_not_equal_registers()
 	{
 		if (*(k_v_registers + retrieve_nibble(Nibble::Second)) != *(k_v_registers + retrieve_nibble(Nibble::Third)))
@@ -251,6 +346,13 @@ namespace npdib
 		*k_i_register = retrieve_nibble(Nibble::Second);
 		*(k_i_register + 1) = (retrieve_nibble(Nibble::Third) << 4) | retrieve_nibble(Nibble::Fourth);
 		m_cycles += 55;
+	}
+
+	void Chip8::jump_with_offset()
+	{
+		uint16_t address = k_v_registers[retrieve_nibble(Nibble::Second)] + ((retrieve_nibble(Nibble::Second) << 8) | (retrieve_nibble(Nibble::Third) << 4) | retrieve_nibble(Nibble::Fourth));
+		m_program_counter = m_ram + address;
+		m_cycles += 105;
 	}
 
 	void Chip8::random()
@@ -302,5 +404,28 @@ namespace npdib
 		}
 
 		m_cycles += 22734;
+	}
+	void Chip8::skip_if_key()
+	{
+		uint16_t keys = (*k_key_register << 8) | *(k_key_register + 1);
+		switch (m_current_op & 0xFF)
+		{
+		case 0x9E:
+			if (keys & (1 << retrieve_nibble(Nibble::Second)))
+			{
+				m_program_counter += 2;
+			}
+			break;
+		case 0xA1:
+			if (!(keys & (1 << retrieve_nibble(Nibble::Second))))
+			{
+				m_program_counter += 2;
+			}
+			break;
+		default:
+			break;
+		}
+
+		m_cycles += 73;
 	}
 }

@@ -15,6 +15,7 @@ namespace npdib
 		void tick();
 		uint8_t* get_display_data() { return k_display_data; }
 		uint8_t* get_sound_register() { return k_sound_register; }
+		uint8_t* get_key_register() { return k_key_register; }
 
 	private:
 		enum class Nibble
@@ -61,9 +62,10 @@ namespace npdib
 		*/
 		uint8_t m_ram[4096];
 		uint8_t* const k_v_registers;
-		uint8_t* const k_i_register;
-		uint8_t* const k_delay_register;
-		uint8_t* const k_sound_register;
+		uint8_t* const k_i_register; // 2 bytes
+		uint8_t* const k_delay_register; // 1 byte
+		uint8_t* const k_sound_register; // 1 byte
+		uint8_t* const k_key_register; // 2 bytes
 		uint8_t* const k_call_stack;
 		uint8_t* const k_display_data;
 		uint8_t* const k_program_data;
@@ -92,11 +94,24 @@ namespace npdib
 		void skip_if_equal_registers();
 		void set_register();
 		void add_value_to_register();
+		void arithmetic_operations();
+
+		void set();
+		void bin_or();
+		void bin_and();
+		void logic_xor();
+		void add();
+		void sub_left();
+		void sub_right();
+		void shift_left();
+		void shift_right();
+
 		void skip_if_not_equal_registers();
 		void set_index_register();
+		void jump_with_offset();
 		void random();
 		void display();
-
+		void skip_if_key();
 	};
 
 }

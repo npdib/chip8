@@ -33,7 +33,9 @@ int main(int argc, char* argv[])
     chip8.run();
     uint64_t next_tick = 0;
 
-    while (true)
+    bool quit = false;
+
+    while (!quit)
     {
         if (SDL_GetTicks64() > next_tick) // 60Hz
         {
