@@ -12,6 +12,12 @@
     <Filter Include="SDL">
       <UniqueIdentifier>{ff947ffc-a021-403c-ac36-ef67f9a9679c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SDL\Debug">
+      <UniqueIdentifier>{6c62d2de-7ff5-426f-8717-07e13818fe9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SDL\Release">
+      <UniqueIdentifier>{83ca64e4-8c6b-44c2-8483-420e78b40400}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -28,18 +34,27 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="SDL\VisualC\x64\Debug\SDL2.lib">
-      <Filter>SDL</Filter>
-    </Library>
     <Library Include="SDL\VisualC\x64\Debug\SDL2main.lib">
-      <Filter>SDL</Filter>
+      <Filter>SDL\Debug</Filter>
+    </Library>
+    <Library Include="SDL\VisualC\x64\Debug\SDL2.lib">
+      <Filter>SDL\Debug</Filter>
+    </Library>
+    <Library Include="SDL\VisualC\x64\Release\SDL2.lib">
+      <Filter>SDL\Release</Filter>
+    </Library>
+    <Library Include="SDL\VisualC\x64\Release\SDL2main.lib">
+      <Filter>SDL\Release</Filter>
     </Library>
   </ItemGroup>
   <ItemGroup>
-    <None Include="SDL\VisualC\x64\Debug\SDL2.dll">
-      <Filter>SDL</Filter>
-    </None>
     <None Include="roms\IBM Logo.ch8" />
+    <None Include="SDL\VisualC\x64\Debug\SDL2.dll">
+      <Filter>SDL\Debug</Filter>
+    </None>
+    <None Include="SDL\VisualC\x64\Release\SDL2.dll">
+      <Filter>SDL\Release</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Chip8.h">

@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <SDL.h>
-#include <iostream>
-#include <Windows.h>
 
 #include "Display.h"
 #include "Keypad.h"

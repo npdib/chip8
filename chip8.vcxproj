@@ -107,7 +107,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)SDL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -125,8 +125,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)SDL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -144,10 +145,13 @@
   <ItemGroup>
     <None Include="roms\IBM Logo.ch8" />
     <None Include="SDL\VisualC\x64\Debug\SDL2.dll" />
+    <None Include="SDL\VisualC\x64\Release\SDL2.dll" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="SDL\VisualC\x64\Debug\SDL2.lib" />
     <Library Include="SDL\VisualC\x64\Debug\SDL2main.lib" />
+    <Library Include="SDL\VisualC\x64\Release\SDL2.lib" />
+    <Library Include="SDL\VisualC\x64\Release\SDL2main.lib" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Chip8.h" />
