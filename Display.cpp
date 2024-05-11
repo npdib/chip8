@@ -60,22 +60,99 @@ namespace npdib
         SDL_SetRenderDrawColor(m_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(m_renderer);
 
-        SDL_SetRenderDrawColor(m_renderer, 0x00, 0x00, 0x00, 0xFF);
 
 
         // Declare rect of square
-        SDL_Rect squareRect;
+        SDL_Rect box;
 
         // Square dimensions: Half of the min(SCREEN_WIDTH, SCREEN_HEIGHT)
-        squareRect.w = std::min(kScreenWidth, kScreenHeight) / 2;
-        squareRect.h = std::min(kScreenWidth, kScreenHeight) / 2;
+        box.w = std::min(kScreenWidth, kScreenHeight) / 2;
+        box.h = std::min(kScreenWidth, kScreenHeight) / 2;
 
         // Square position: In the middle of the screen
-        squareRect.x = kScreenWidth / 2 - squareRect.w / 2;
-        squareRect.y = kScreenHeight / 2 - squareRect.h / 2;
+        box.x = kScreenWidth / 2 - box.w / 2;
+        box.y = kScreenHeight / 2 - box.h / 2;
 
+        SDL_Rect highlight;
 
-        SDL_RenderDrawRect(m_renderer, &squareRect);
+        highlight.w = box.w / 4;
+        highlight.h = box.h / 4;
+
+        switch (character)
+        {
+            case 0x00:
+                highlight.x = box.x + highlight.w;
+                highlight.y = box.y + 3 * highlight.h;
+                break;
+            case 0x01:
+                highlight.x = box.x;
+                highlight.y = box.y;
+                break;
+            case 0x02:
+                highlight.x = box.x + highlight.w;
+                highlight.y = box.y;
+                break;
+            case 0x03:
+                highlight.x = box.x + 2 * highlight.w;
+                highlight.y = box.y;
+                break;
+            case 0x04:
+                highlight.x = box.x;
+                highlight.y = box.y + highlight.h;
+                break;
+            case 0x05:
+                highlight.x = box.x + highlight.w;
+                highlight.y = box.y + highlight.h;
+                break;
+            case 0x06:
+                highlight.x = box.x + 2 * highlight.w;
+                highlight.y = box.y + highlight.h;
+                break;
+            case 0x07:
+                highlight.x = box.x;
+                highlight.y = box.y + 2 * highlight.h;
+                break;
+            case 0x08:
+                highlight.x = box.x + highlight.w;
+                highlight.y = box.y + 2 * highlight.h;
+                break;
+            case 0x09:
+                highlight.x = box.x + 2 * highlight.w;
+                highlight.y = box.y + 2 * highlight.h;
+                break;
+            case 0x0A:
+                highlight.x = box.x;
+                highlight.y = box.y + 3 * highlight.h;
+                break;
+            case 0x0B:
+                highlight.x = box.x + 2 * highlight.w;
+                highlight.y = box.y + 3 * highlight.h;
+                break;
+            case 0x0C:
+                highlight.x = box.x + 3 * highlight.w;
+                highlight.y = box.y;
+                break;
+            case 0x0D:
+                highlight.x = box.x + 3 * highlight.w;
+                highlight.y = box.y + highlight.h;
+                break;
+            case 0x0E:
+                highlight.x = box.x + 3 * highlight.w;
+                highlight.y = box.y + 2 * highlight.h;
+                break;
+            case 0x0F:
+                highlight.x = box.x + 3 * highlight.w;
+                highlight.y = box.y + 3 * highlight.h;
+                break;
+            default:
+                break;
+        }
+
+        SDL_SetRenderDrawColor(m_renderer, 0x00, 0x00, 0x00, 0xFF);
+        SDL_RenderDrawRect(m_renderer, &box);
+
+        SDL_SetRenderDrawColor(m_renderer, 0xFF, 0x00, 0x00, 0xFF);
+        SDL_RenderFillRect(m_renderer, &highlight);
 
         SDL_RenderPresent(m_renderer);
     }
