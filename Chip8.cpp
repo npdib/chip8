@@ -1,5 +1,6 @@
 #include "Chip8.h"
 #include <cstring>
+#include <iostream>
 
 namespace npdib
 {
@@ -129,6 +130,8 @@ namespace npdib
 				set_index_register();
 				break;
 			case 0x0B:
+				jump_with_offset();
+				break;
 			case 0x0C:
 				random();
 				break;
@@ -137,8 +140,10 @@ namespace npdib
 				break;
 			case 0x0E:
 				skip_if_key();
+				break;
 			case 0x0F:
 				misc();
+				break;
 			default:
 				break;
 		}
@@ -327,14 +332,16 @@ namespace npdib
 
 	void Chip8::shift_left()
 	{
-		k_v_registers[0x0F] = (k_v_registers[retrieve_nibble(Nibble::Second)] & 0x70) >> 7;
+		uint8_t temp_flag = (k_v_registers[retrieve_nibble(Nibble::Second)] & 0x70) >> 7;
 		k_v_registers[retrieve_nibble(Nibble::Second)] <<= 1;
+		k_v_registers[0x0F] = temp_flag;
 	}
 
 	void Chip8::shift_right()
 	{
-		k_v_registers[0x0F] = k_v_registers[retrieve_nibble(Nibble::Second)] & 0x01;
+		uint8_t temp_flag = k_v_registers[retrieve_nibble(Nibble::Second)] & 0x01;
 		k_v_registers[retrieve_nibble(Nibble::Second)] >>= 1;
+		k_v_registers[0x0F] = temp_flag;
 	}
 
 	void Chip8::skip_if_not_equal_registers()
@@ -413,16 +420,17 @@ namespace npdib
 	void Chip8::skip_if_key()
 	{
 		uint16_t keys = (*k_key_register << 8) | *(k_key_register + 1);
+		uint8_t key = k_v_registers[retrieve_nibble(Nibble::Second)];
 		switch (m_current_op & 0xFF)
 		{
 		case 0x9E:
-			if (keys & (1 << retrieve_nibble(Nibble::Second)))
+			if ((keys & (1 << key)) != 0)
 			{
 				m_program_counter += 2;
 			}
 			break;
 		case 0xA1:
-			if (!(keys & (1 << retrieve_nibble(Nibble::Second))))
+			if ((keys & (1 << key)) == 0)
 			{
 				m_program_counter += 2;
 			}
