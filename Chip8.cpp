@@ -311,16 +311,18 @@ namespace npdib
 
 	void Chip8::sub_left()
 	{
-		k_v_registers[0x0F] = (k_v_registers[retrieve_nibble(Nibble::Second)] >= k_v_registers[retrieve_nibble(Nibble::Third)]) ? 1 : 0;
-
+		uint8_t temp_flag = (k_v_registers[retrieve_nibble(Nibble::Second)] >= k_v_registers[retrieve_nibble(Nibble::Third)]) ? 1 : 0;
 		k_v_registers[retrieve_nibble(Nibble::Second)] -= k_v_registers[retrieve_nibble(Nibble::Third)];
+
+		k_v_registers[0x0F] = temp_flag;
 	}
 
 	void Chip8::sub_right()
 	{
-		k_v_registers[0x0F] = (k_v_registers[retrieve_nibble(Nibble::Third)] >= k_v_registers[retrieve_nibble(Nibble::Second)]) ? 1 : 0;
+		uint8_t temp_flag = (k_v_registers[retrieve_nibble(Nibble::Third)] >= k_v_registers[retrieve_nibble(Nibble::Second)]) ? 1 : 0;
 
 		k_v_registers[retrieve_nibble(Nibble::Second)] = k_v_registers[retrieve_nibble(Nibble::Third)] - k_v_registers[retrieve_nibble(Nibble::Second)];
+		k_v_registers[0x0F] = temp_flag;
 	}
 
 	void Chip8::shift_left()

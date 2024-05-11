@@ -2,59 +2,135 @@
 
 namespace npdib
 {
-	uint8_t Keypad::poll()
+	Keypad::Keypad(uint8_t* keys)
+		: m_key_states(reinterpret_cast<uint16_t*>(keys))
+	{
+	}
+	bool Keypad::poll()
 	{
 		SDL_Event ev;
 		if (SDL_PollEvent(&ev))
 		{
 			if (ev.type == SDL_QUIT)
 			{
-				return 254;
+				return true;
 			}
 			else if (ev.type == SDL_KEYDOWN)
 			{
 				switch (ev.key.keysym.scancode)
 				{
-				case SDL_SCANCODE_ESCAPE:
-					return 254;
-				case SDL_SCANCODE_1:
-					return 0x01;
-				case SDL_SCANCODE_2:
-					return 0x02;
-				case SDL_SCANCODE_3:
-					return 0x03;
-				case SDL_SCANCODE_4:
-					return 0x0C;
-				case SDL_SCANCODE_Q:
-					return 0x04;
-				case SDL_SCANCODE_W:
-					return 0x05;
-				case SDL_SCANCODE_E:
-					return 0x06;
-				case SDL_SCANCODE_R:
-					return 0x0D;
-				case SDL_SCANCODE_A:
-					return 0x07;
-				case SDL_SCANCODE_S:
-					return 0x08;
-				case SDL_SCANCODE_D:
-					return 0x09;
-				case SDL_SCANCODE_F:
-					return 0x0E;
-				case SDL_SCANCODE_Z:
-					return 0x0A;
-				case SDL_SCANCODE_X:
-					return 0x00;
-				case SDL_SCANCODE_C:
-					return 0x0B;
-				case SDL_SCANCODE_V:
-					return 0x0F;
-				default:
-					break;
+					case SDL_SCANCODE_ESCAPE:
+						return true;
+					case SDL_SCANCODE_1:
+						*m_key_states |= (1 << 0x01);
+						break;
+					case SDL_SCANCODE_2:
+						*m_key_states |= (1 << 0x02);
+						break;
+					case SDL_SCANCODE_3:
+						*m_key_states |= (1 << 0x03);
+						break;
+					case SDL_SCANCODE_4:
+						*m_key_states |= (1 << 0x0C);
+						break;
+					case SDL_SCANCODE_Q:
+						*m_key_states |= (1 << 0x04);
+						break;
+					case SDL_SCANCODE_W:
+						*m_key_states |= (1 << 0x05);
+						break;
+					case SDL_SCANCODE_E:
+						*m_key_states |= (1 << 0x06);
+						break;
+					case SDL_SCANCODE_R:
+						*m_key_states |= (1 << 0x0D);
+						break;
+					case SDL_SCANCODE_A:
+						*m_key_states |= (1 << 0x07);
+						break;
+					case SDL_SCANCODE_S:
+						*m_key_states |= (1 << 0x08);
+						break;
+					case SDL_SCANCODE_D:
+						*m_key_states |= (1 << 0x09);
+						break;
+					case SDL_SCANCODE_F:
+						*m_key_states |= (1 << 0x0E);
+						break;
+					case SDL_SCANCODE_Z:
+						*m_key_states |= (1 << 0x0A);
+						break;
+					case SDL_SCANCODE_X:
+						*m_key_states |= (1 << 0x00);
+						break;
+					case SDL_SCANCODE_C:
+						*m_key_states |= (1 << 0x0B);
+						break;
+					case SDL_SCANCODE_V:
+						*m_key_states |= (1 << 0x0F);
+						break;
+					default:
+						break;
+				}
+			}
+			else if (ev.type == SDL_KEYUP)
+			{
+				switch (ev.key.keysym.scancode)
+				{
+					case SDL_SCANCODE_1:
+						*m_key_states &= ~(1 << 0x01);
+						break;
+					case SDL_SCANCODE_2:
+						*m_key_states &= ~(1 << 0x02);
+						break;
+					case SDL_SCANCODE_3:
+						*m_key_states &= ~(1 << 0x03);
+						break;
+					case SDL_SCANCODE_4:
+						*m_key_states &= ~(1 << 0x0C);
+						break;
+					case SDL_SCANCODE_Q:
+						*m_key_states &= ~(1 << 0x04);
+						break;
+					case SDL_SCANCODE_W:
+						*m_key_states &= ~(1 << 0x05);
+						break;
+					case SDL_SCANCODE_E:
+						*m_key_states &= ~(1 << 0x06);
+						break;
+					case SDL_SCANCODE_R:
+						*m_key_states &= ~(1 << 0x0D);
+						break;
+					case SDL_SCANCODE_A:
+						*m_key_states &= ~(1 << 0x07);
+						break;
+					case SDL_SCANCODE_S:
+						*m_key_states &= ~(1 << 0x08);
+						break;
+					case SDL_SCANCODE_D:
+						*m_key_states &= ~(1 << 0x09);
+						break;
+					case SDL_SCANCODE_F:
+						*m_key_states &= ~(1 << 0x0E);
+						break;
+					case SDL_SCANCODE_Z:
+						*m_key_states &= ~(1 << 0x0A);
+						break;
+					case SDL_SCANCODE_X:
+						*m_key_states &= ~(1 << 0x00);
+						break;
+					case SDL_SCANCODE_C:
+						*m_key_states &= ~(1 << 0x0B);
+						break;
+					case SDL_SCANCODE_V:
+						*m_key_states &= ~(1 << 0x0F);
+						break;
+					default:
+						break;
 				}
 			}
 		}
 
-		return 255;
+		return false;
 	}
 }

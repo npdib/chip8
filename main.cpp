@@ -25,9 +25,9 @@ int main(int argc, char* argv[])
     // create objects
     npdib::Chip8 chip8;
     npdib::Display display(chip8.get_display_data());
-    npdib::Keypad keypad;
+    npdib::Keypad keypad(chip8.get_key_register());
 
-    chip8.load_program("roms/test_opcode.ch8");
+    chip8.load_program("roms/4-flags.ch8");
 
 
     chip8.run();
@@ -44,12 +44,7 @@ int main(int argc, char* argv[])
             display.display();
         }
 
-        uint8_t key_ev = keypad.poll();
-
-        if (key_ev == 254)
-        {
-            break;
-        }
+        quit = keypad.poll();
     }
 
     return 0;
